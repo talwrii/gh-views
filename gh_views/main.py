@@ -86,6 +86,7 @@ def display_summary(repo):
 
     if not clone_ts and not view_ts:
         print("No data yet")
+        return
 
     clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
     view_start = min(d["timestamp"] for d in view_ts) if clone_ts else None
@@ -104,12 +105,20 @@ def display_summary(repo):
 
 
 def display_timeseries(repo):
-    clone_ts = read_timeseries(clone_path(repo))
-    view_ts = read_timeseries(views_path(repo))
 
-    clone_start = min(d["timestamp"] for d in clone_ts)
-    view_start = min(d["timestamp"] for d in view_ts)
-    start = max([clone_start, view_start])
+    cp = clone_path(repo)
+    clone_ts = read_timeseries(cp) if cp.exists() else []
+
+    vp = views_path(repo)
+    view_ts = read_timeseries(vp) if vp.exists() else []
+
+    clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
+    view_start = min(d["timestamp"] for d in view_ts) if view_ts else None
+
+    if clone_start and view_start:
+        start = max([clone_start, view_start])
+    else:
+        start = clone_start or view_start
 
     clone_ts = ts_after(start, clone_ts)
     view_ts = ts_after(start, view_ts)
