@@ -56,7 +56,7 @@ gh-views talwrii/plugin-repl --timeseries
 to output a complete timeseries of statistics for each day.
 
 # Support
-If you found this tool particularly useful you can give me some money (maybe $3?) on [my ko-fi](https://ko-fi.com/readwithai).
+If you found this tool particularly useful you can give me some money (maybe $3?) on [my ko-fi](https://ko-fi.com/c/0a3037db4b)
 
 This will incentivise me to respond to tickets on this repository and release [similar command-line tools](https://readwithai.substack.com/p/my-productivity-tools).
 
