@@ -144,15 +144,6 @@ def merge(series):
 
         yield result
 
-
-
-
-
-
-
-
-
-
 def ts_after(start, ts):
     return [d for d in ts if d["timestamp"] > start]
 
