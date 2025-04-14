@@ -1,7 +1,7 @@
 # Github command-line views
 @readwithai - [X](https://x.com/readwithai) - [blog](https://readwithai.substack.com) -  [machine-aided-reading](https://www.reddit.com/r/machineAidedReading/)
 
-Fetch (and maintain) information about the number of views or downloads a github repository has.
+Fetch (and maintain) information about the number of views or clones a github repository has.
 
 # Motivation
 It can be quite natural to host some material such as documentation, cookbooks and list on github. `github` provides an API to query the number of views a repository has with some limitations. The main limitation is that data is only detained for two weeks. This script, if run periodically, will collect data about the numbers of downloads and views of a repository and provided aggregates.
