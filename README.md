@@ -9,12 +9,14 @@ It can be quite natural to host some material such as documentation, cookbooks a
 It can also output a completely timeline.
 
 # Alternatives and prior work
-This makes use of the [github REST API](
+This makes use of the [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) specifically [the traffic endpoints](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28). You can call these directly with the [gh command-line client](https://github.com/cli/cli).
 
-)
+There are some repositories [intended for uses as github actions](https://github.com/sangonzal/repository-traffic-action) to sore these actions. I find github actions unwieldy and difficult to debug. [repohistory](https://github.com/repohistory/repohistory?tab=readme-ov-file) provides similar functionality through a web GUI - it has no intructions for running locally but provides a web log in. [ghstats](https://github.com/vladkens/ghstats) is another GUI interface but has instructions on how to run it, collects more information and provides an end-point for querying (I may have used this if I discovered it earlier). There are [tools for forward this data to splunk](https://github.com/josehelps/github-traffic-collector).
+
+This appears to be the only command-line tool
+
 
 # Installation
-
 Make sure you have the github command line-interface, [gh](https://github.com/cli/cli), installed and that you have logged in to the command-line.
 
 You can then install gh-views with [pipx](https://github.com/pypa/pipx).
