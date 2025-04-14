@@ -84,9 +84,16 @@ def display_summary(repo):
     clone_ts = read_timeseries(clone_path(repo))
     view_ts = read_timeseries(views_path(repo))
 
-    clone_start = min(d["timestamp"] for d in clone_ts)
-    view_start = min(d["timestamp"] for d in view_ts)
-    start = max([clone_start, view_start])
+    if not clone_ts and not view_ts:
+        print("No data yet")
+
+    clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
+    view_start = min(d["timestamp"] for d in view_ts) if clone_ts else None
+
+    if clone_start and view_start:
+        start = max([clone_start, view_start])
+    else:
+        start = clone_start or view_start
 
     clone_ts = ts_after(start, clone_ts)
     view_ts = ts_after(start, view_ts)
@@ -163,11 +170,15 @@ def fetch_views(repo):
 
 
 def update_timeseries(path, new_ts):
-    ts = read_timeseries(path)
-    timestamps = set(d["timestamp"] for d in ts)
+    if os.path.exists(path):
+        ts = read_timeseries(path)
+    else:
+        ts = None
+
+    timestamps = ts and set(d["timestamp"] for d in ts)
     with open(path, "a") as f:
         for x in new_ts:
-            if x["timestamp"] not in timestamps:
+            if timestamps and x["timestamp"] not in timestamps:
                 f.write(json.dumps(x) + "\n")
 
 def fetch_data(url):
