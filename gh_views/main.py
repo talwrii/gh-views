@@ -13,8 +13,8 @@ PARSER = argparse.ArgumentParser(description='Get information about github downl
 PARSER.add_argument('repo', nargs="?", help="Repository to get data for. Omit to list repositories")
 PARSER.add_argument("--fetch", action="store_true", help="Fetch data. Omit repo to fetch all data.")
 PARSER.add_argument("--debug", action="store_true", help="Include debug output")
-PARSER.add_argument("--all", action="store_true", help="Show data for all repos")
-PARSER.add_argument("--timeseries", action="store_true", help="Output a timeseries rather than summary")
+PARSER.add_argument("-a", "--all", action="store_true", help="Show data for all repos")
+PARSER.add_argument("-t", "--timeseries", action="store_true", help="Output a timeseries rather than summary")
 
 args = PARSER.parse_args()
 
@@ -108,7 +108,7 @@ def display_timeseries(repo):
     view_ts = ts_after(start, view_ts)
 
     for update in merge(dict(clone=clone_ts, views=view_ts)):
-        print(update)
+        print(json.dumps(update))
 
 
 def merge(series):
