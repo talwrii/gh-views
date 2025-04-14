@@ -55,6 +55,9 @@ gh-views talwrii/plugin-repl --timeseries
 ```
 to output a complete timeseries of statistics for each day.
 
+# Missing features
+I have not tested this on mac or windows. The code for storing data may need different paths. Patches for this will be quickly merged.
+
 # Support
 If you found this tool particularly useful you can give me some money (maybe $3?) on [my ko-fi](https://ko-fi.com/c/0a3037db4b)
 
