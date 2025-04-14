@@ -186,7 +186,7 @@ def update_timeseries(path, new_ts):
     timestamps = ts and set(d["timestamp"] for d in ts)
     with open(path, "a") as f:
         for x in new_ts:
-            if timestamps and x["timestamp"] not in timestamps:
+            if not timestamps or x["timestamp"] not in timestamps:
                 f.write(json.dumps(x) + "\n")
 
 def fetch_data(url):
