@@ -105,7 +105,6 @@ def display_summary(repo):
 
 
 def display_timeseries(repo):
-
     cp = clone_path(repo)
     clone_ts = read_timeseries(cp) if cp.exists() else []
 
