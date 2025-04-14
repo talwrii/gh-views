@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='gh-views',
-    version="1.0.2",
+    version="1.0.3",
     author='@readwithai',
     long_description_content_type='text/markdown',
     author_email='talwrii@gmail.com',
