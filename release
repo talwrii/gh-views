@@ -3,9 +3,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-
-version=$(python3 setup.py --version)
-git tag $version
+git push
+git tag $(python3 setup.py --version)
 git push --tags
 
 rm -rf dist *.egg-info build

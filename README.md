@@ -70,3 +70,5 @@ If this sounds interesting, of you found this tool useful you might like to:
 
 
 If you rae interested in reading and research you can [follow me on my blog](https://readwithai.substack.com).
+
+![logo](logo.png)
