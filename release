@@ -1,0 +1,13 @@
+#!/bin/bash
+set -o errexit
+set -o nounset
+set -o pipefail
+
+
+version=$(python3 setup.py --version)
+git tag $version
+git push --tags
+
+rm -rf dist *.egg-info build
+python3 setup.py sdist
+twine upload dist/*
