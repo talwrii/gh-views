@@ -62,10 +62,15 @@ To update all stats for tracked repositories (those for which you have collected
 gh-views --fetch
 ```
 
+You can output statistics in data format using the `--json` flag
+```
+gh-views talwrii/plugin-repl --json
+```
+
+
 You may wish to run this periodically for example using a [systemd timer](https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html) or [cron job](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/), to ensure that all data is collected.
 
-to output a complete timeseries of statistics for each day you can run:
-
+to output a complete timeseries of statistics in [JSONL](https://www.atatus.com/glossary/jsonl/) format for each day you can run:
 ```
 gh-views talwrii/plugin-repl --timeseries
 ```
