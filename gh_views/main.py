@@ -111,8 +111,11 @@ def main():
             print(r)
             fetch(r)
 
-    for r in args.repos:
-        display_func(r)
+    if args.json:
+        print(json.dumps([display_summary_data(r) for r in args.repos], indent=2))
+    else:
+        for r in args.repos:
+            display_func(r)
 
 
 def delete(repo):
@@ -144,6 +147,7 @@ def display_summary_data(repo):
     days = (UTC.localize(datetime.datetime.utcnow()) - start_dt).days
 
     return {
+        "repo": repo,
         "start": start,
         "days": days,
         "unique_views": uniques(view_ts),
