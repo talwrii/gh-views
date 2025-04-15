@@ -13,8 +13,8 @@ from pathlib import Path
 import pytz
 
 PARSER = argparse.ArgumentParser(description='Get information about github download stats')
-PARSER.add_argument('repo', nargs="?", help="Repository to get data for. Omit to list repositories")
-PARSER.add_argument("--fetch", action="store_true", help="Fetch data. Omit repo to fetch all data.")
+PARSER.add_argument('repos', nargs="*", help="Repository to get data for. Omit to list repositories")
+PARSER.add_argument("-f", "--fetch", action="store_true", help="Fetch data. Omit repo to fetch all data.")
 PARSER.add_argument("--debug", action="store_true", help="Include debug output")
 PARSER.add_argument("-a", "--all", action="store_true", help="Show data for all repos")
 PARSER.add_argument("--delete", action="store_true", help="Delete data related to and stop fetching data for a repository")
@@ -83,13 +83,14 @@ def main():
             print("You can manually delete {STATS_PATH} to clear all data")
             return
 
-        if args.repo is None:
+        if not args.repos:
             raise Exception('Must specify a repo to delete')
 
-        delete(args.repo)
+        for r in args.repos:
+            delete(r)
         return
 
-    if args.repo is None:
+    if not args.repos:
         if args.fetch:
             repos = list(get_repos())
             for r in repos:
@@ -106,9 +107,12 @@ def main():
         return
 
     if args.fetch:
-        fetch(args.repo)
+        for r in args.repos:
+            print(r)
+            fetch(r)
 
-    display_func(args.repo)
+    for r in args.repos:
+        display_func(r)
 
 
 def delete(repo):
@@ -142,7 +146,7 @@ def display_summary_data(repo):
     return {
         "start": start,
         "days": days,
-        "unique_view": uniques(view_ts),
+        "unique_views": uniques(view_ts),
         "unique_views_per_day": round(uniques(view_ts) / days, 3),
         "unique_clones": uniques(clone_ts),
         "unique_clones_per_day": round(uniques(clone_ts) / days, 3),
@@ -154,8 +158,10 @@ def display_summary_data(repo):
 
 def display_summary(repo):
     data = display_summary_data(repo)
+    if data is None:
+        return
     print(f"Since {data['start']} ({data['days']} days)")
-    print(f"VIEWS  unique:{data['unique_view']} ({data['unique_views_per_day']:.1f} per day) total:{data['total_views']} ({data['total_views_per_day']:.1f} per day)")
+    print(f"VIEWS  unique:{data['unique_views']} ({data['unique_views_per_day']:.1f} per day) total:{data['total_views']} ({data['total_views_per_day']:.1f} per day)")
     print(f"CLONES unique:{data['unique_clones']} ({data['unique_clones_per_day']:.1f} per day) total:{data['total_clones']} ({data['total_clones_per_day']:.1f} per day)")
 
 def display_summary_json(repo):
