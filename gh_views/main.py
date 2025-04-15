@@ -9,6 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 import pytz
 
 PARSER = argparse.ArgumentParser(description='Get information about github download stats')
@@ -17,6 +18,7 @@ PARSER.add_argument("--fetch", action="store_true", help="Fetch data. Omit repo 
 PARSER.add_argument("--debug", action="store_true", help="Include debug output")
 PARSER.add_argument("-a", "--all", action="store_true", help="Show data for all repos")
 PARSER.add_argument("--delete", action="store_true", help="Delete data related to and stop fetching data for a repository")
+PARSER.add_argument("--json", action='store_true', help="Output results in json")
 
 PARSER.add_argument("-t", "--timeseries", action="store_true", help="Output a timeseries rather than summary")
 
@@ -66,7 +68,13 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 
-    display_func = display_timeseries if args.timeseries else display_summary
+    if args.timeseries:
+        display_func = display_timeseries
+    elif args.json:
+        display_func = display_summary_json
+    else:
+        display_func = display_summary
+
 
 
     if args.delete:
@@ -108,12 +116,12 @@ def delete(repo):
         d.unlink()
 
 
-def display_summary(repo):
+def display_summary_data(repo):
     clone_ts = read_timeseries(clone_path(repo))
     view_ts = read_timeseries(views_path(repo))
 
     if not clone_ts and not view_ts:
-        print("No data yet")
+        print(f"Have not fetched data for {repo} yet.")
         return
 
     clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
@@ -131,10 +139,28 @@ def display_summary(repo):
 
     days = (UTC.localize(datetime.datetime.utcnow()) - start_dt).days
 
-    print(f"Since {start} ({days} days)")
-    print(f"VIEWS  unique:{uniques(view_ts)} ({uniques(view_ts) / days:.1f} per day) total:{total(view_ts)} ({total(view_ts) / days:.1f} per day)")
-    print(f"CLONES unique:{uniques(clone_ts)} ({uniques(clone_ts) / days:.1f} per day) total:{total(clone_ts)} ({total(clone_ts) / days:.1f} per day)")
+    return {
+        "start": start,
+        "days": days,
+        "unique_view": uniques(view_ts),
+        "unique_views_per_day": round(uniques(view_ts) / days, 3),
+        "unique_clones": uniques(clone_ts),
+        "unique_clones_per_day": round(uniques(clone_ts) / days, 3),
+        "total_clones": total(clone_ts),
+        "total_clones_per_day": round(total(clone_ts) / days, 3),
+        "total_views": total(view_ts),
+        "total_views_per_day": round(total(view_ts) / days, 3),
+    }
 
+def display_summary(repo):
+    data = display_summary_data(repo)
+    print(f"Since {data['start']} ({data['days']} days)")
+    print(f"VIEWS  unique:{data['unique_view']} ({data['unique_views_per_day']:.1f} per day) total:{data['total_views']} ({data['total_views_per_day']:.1f} per day)")
+    print(f"CLONES unique:{data['unique_clones']} ({data['unique_clones_per_day']:.1f} per day) total:{data['total_clones']} ({data['total_clones_per_day']:.1f} per day)")
+
+def display_summary_json(repo):
+    data = display_summary_data(repo)
+    print(json.dumps(data, indent=2))
 
 def display_timeseries(repo):
     cp = clone_path(repo)
