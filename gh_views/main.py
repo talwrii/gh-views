@@ -125,7 +125,7 @@ def display_summary_data(repo):
         return
 
     clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
-    view_start = min(d["timestamp"] for d in view_ts) if clone_ts else None
+    view_start = min(d["timestamp"] for d in view_ts) if view_ts else None
 
     if clone_start and view_start:
         start = max([clone_start, view_start])
