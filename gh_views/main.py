@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import datetime
 import json
 import logging
 import os
@@ -8,21 +9,27 @@ import subprocess
 import sys
 from pathlib import Path
 
-PARSER = argparse.ArgumentParser(description='Get information about github download stats')
+import pytz
 
+PARSER = argparse.ArgumentParser(description='Get information about github download stats')
 PARSER.add_argument('repo', nargs="?", help="Repository to get data for. Omit to list repositories")
 PARSER.add_argument("--fetch", action="store_true", help="Fetch data. Omit repo to fetch all data.")
 PARSER.add_argument("--debug", action="store_true", help="Include debug output")
 PARSER.add_argument("-a", "--all", action="store_true", help="Show data for all repos")
+PARSER.add_argument("--delete", action="store_true", help="Delete data related to and stop fetching data for a repository")
+
 PARSER.add_argument("-t", "--timeseries", action="store_true", help="Output a timeseries rather than summary")
 
-args = PARSER.parse_args()
+UTC = pytz.timezone("UTC")
 
 STATS_PATH = Path(os.path.expanduser("~")) / ".local" / "state" / "gh-views"
-STATS_PATH.mkdir(exist_ok=True)
 
 def read_timeseries(filename: Path) -> list[dict]:
+    if not os.path.exists(filename):
+        return None
+
     raw_data = []
+
     with open(filename) as stream:
         for line in stream:
             raw_data.append(json.loads(line))
@@ -34,7 +41,6 @@ def read_timeseries(filename: Path) -> list[dict]:
             continue
         data.append(x)
         timestamps.add(x["timestamp"])
-
     return data
 
 
@@ -52,12 +58,28 @@ def get_repos():
         found.add(name)
 
 def main():
+    args = PARSER.parse_args()
+    STATS_PATH.mkdir(exist_ok=True)
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
     else:
         logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 
     display_func = display_timeseries if args.timeseries else display_summary
+
+
+    if args.delete:
+        if args.all:
+            print("Refusing to delete all data.")
+            print("You can manually delete {STATS_PATH} to clear all data")
+            return
+
+        if args.repo is None:
+            raise Exception('Must specify a repo to delete')
+
+        delete(args.repo)
+        return
 
     if args.repo is None:
         if args.fetch:
@@ -80,6 +102,12 @@ def main():
 
     display_func(args.repo)
 
+
+def delete(repo):
+    for d in [clone_path(repo), views_path(repo)]:
+        d.unlink()
+
+
 def display_summary(repo):
     clone_ts = read_timeseries(clone_path(repo))
     view_ts = read_timeseries(views_path(repo))
@@ -99,9 +127,13 @@ def display_summary(repo):
     clone_ts = ts_after(start, clone_ts)
     view_ts = ts_after(start, view_ts)
 
-    print("Since", min(d["timestamp"] for d in clone_ts))
-    print(f"views: unique:{uniques(view_ts)} total:{total(view_ts)}")
-    print(f"clones: unique:{uniques(clone_ts)} total:{total(clone_ts)}")
+    start_dt = datetime.datetime.fromisoformat(start)
+
+    days = (UTC.localize(datetime.datetime.utcnow()) - start_dt).days
+
+    print(f"Since {start} ({days} days)")
+    print(f"VIEWS  unique:{uniques(view_ts)} ({uniques(view_ts) / days:.1f} per day) total:{total(view_ts)} ({total(view_ts) / days:.1f} per day)")
+    print(f"CLONES unique:{uniques(clone_ts)} ({uniques(clone_ts) / days:.1f} per day) total:{total(clone_ts)} ({total(clone_ts) / days:.1f} per day)")
 
 
 def display_timeseries(repo):
@@ -125,7 +157,6 @@ def display_timeseries(repo):
     for update in merge(dict(clone=clone_ts, views=view_ts)):
         print(json.dumps(update))
 
-
 def merge(series):
     "Merge series together"
     series = {k: iter(v) for k, v in series.items()}
@@ -146,7 +177,6 @@ def merge(series):
         min_timestamp = min(peek_timestamps)
 
         result = {"timestamp": min_timestamp}
-
         to_delete = set()
         for k, v in series_peeks.items():
             if v is not None and v["timestamp"] == min_timestamp:
