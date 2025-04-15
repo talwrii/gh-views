@@ -122,7 +122,7 @@ def display_summary_data(repo):
 
     if not clone_ts and not view_ts:
         print(f"Have not fetched data for {repo} yet.")
-        return
+        return None
 
     clone_start = min(d["timestamp"] for d in clone_ts) if clone_ts else None
     view_start = min(d["timestamp"] for d in view_ts) if view_ts else None
