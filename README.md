@@ -39,13 +39,14 @@ gh-views talwrii/plugin-repl --fetch
 This will fetch the clone and view statistics for the repository `talwrii/plugin-repl`.
 
 After this you can fetch the cached statistics with:
-
 ```
 gh-views talwrii/plugin-repl
 ```
 
-To show all the repositories for which stats are collected you can run:
+Todays data is not not included when you run the above command as it could change. To include today's (partial) data include `--fetch`
 
+
+To show all the repositories for which stats are collected you can run:
 ```
 gh-views
 ```
