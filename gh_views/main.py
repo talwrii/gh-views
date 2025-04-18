@@ -132,8 +132,8 @@ def main():
             if todays_data:
                 add_data(series, todays_data[r])
 
-            result.append(display_summary_data(r, series, start=start), indent=2)
-        print(json.dumps(result))
+            result.append(display_summary_data(r, series, start=start))
+        print(json.dumps(result, indent=2))
     else:
         for r in args.repos:
 
