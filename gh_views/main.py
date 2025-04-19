@@ -146,7 +146,8 @@ def main():
 
 def add_data(series, data):
     for k, v in data.items():
-        series[k].append(v)
+        if v is not None:
+            series[k].append(v)
 
 
 
@@ -180,6 +181,12 @@ class NaiveUtcDate:
     def now(cls):
         import datetime
         return datetime.datetime.utcnow().replace(tzinfo=None)
+
+    @classmethod
+    def today(cls):
+        import datetime
+        return datetime.datetime.utcnow().date()
+
 
     @classmethod
     def format(cls, dt):
@@ -296,20 +303,28 @@ def ts_after(start, ts):
 def series_after(start, series):
     return {k: ts_after(start, v) for k, v in series.items()}
 
-
 def fetch_clones(repo):
     data = fetch_data(f"repos/{repo}/traffic/clones")
     output = clone_path(repo)
     logging.debug("Writing to %r", output)
     update_timeseries(output, data["clones"])
-    return data["clones"][-1]
+    return get_todays_point(data["clones"])
+
+def get_todays_point(ts):
+    if not ts:
+        return None
+    last_point = ts[-1]
+    if NaiveUtcDate.parse(last_point["timestamp"]).date() == NaiveUtcDate.today():
+        return last_point
+    else:
+        return None
 
 def fetch_views(repo):
     data = fetch_data(f"repos/{repo}/traffic/views")
     output = views_path(repo)
     logging.debug("Writing to %r", output)
     update_timeseries(output, data["views"])
-    return data["views"][-1]
+    return get_todays_point(data["views"])
 
 
 def update_timeseries(path, new_ts):
@@ -322,7 +337,7 @@ def update_timeseries(path, new_ts):
     with open(path, "a") as f:
         for x in new_ts:
             ts = NaiveUtcDate.parse(x["timestamp"])
-            if ts.date() == NaiveUtcDate.now().date():
+            if ts.date() == NaiveUtcDate.today():
                 # Exclude today because it could change
                 continue
             if not timestamps or x["timestamp"] not in timestamps:
@@ -349,7 +364,6 @@ def uniques(ts):
 def total(ts):
     return sum(d["count"] for d in ts)
 
-
 def fetch(repo: str):
     record_fetch(repo)
     logging.info("Fetching clones for %r...", repo)
@@ -357,8 +371,6 @@ def fetch(repo: str):
     logging.info("Fetching downloads for %r...", repo)
     todays_views = fetch_views(repo)
     return {"clones": todays_clones, "views": todays_views}
-
-
 
 
 def record_fetch(repo: str):
