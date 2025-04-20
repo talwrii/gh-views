@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import datetime
 import json
 import logging
 import os
@@ -16,6 +17,11 @@ PARSER.add_argument("--debug", action="store_true", help="Include debug output")
 PARSER.add_argument("-a", "--all", action="store_true", help="Show data for all repos")
 PARSER.add_argument("--json", action='store_true', help="Output results in json")
 PARSER.add_argument("--common-start", action='store_true', help="When dealing with multiple repos use the latest start date")
+
+# Ddd a --date option in isoformat
+PARSER.add_argument("-d", "--date", type=datetime.date.fromisoformat, help="Display data for this day (in UTC)")
+
+
 
 action_mx.add_argument("--delete", action="store_true",
                        help="Delete data related to and stop fetching data for a repository")
@@ -99,6 +105,17 @@ def main():
             delete(r)
         return
 
+    def prepare_series(r):
+        series = read_series(r)
+        if todays_data:
+            add_data(series, todays_data[r])
+
+
+        if args.date:
+            series = series_on_date(args.date, series)
+
+        return series
+
 
     if not args.repos:
         if args.fetch:
@@ -107,8 +124,9 @@ def main():
                 todays_data[r] = fetch(r)
         elif args.all:
             for r in sorted(list(get_repos())):
+                series = prepare_series(r)
                 print(r)
-                display_func(r)
+                display_func(r, series)
                 print()
         else:
             repos = list(get_repos())
@@ -125,22 +143,17 @@ def main():
     else:
         start = None
 
+
     if args.json:
         result = []
         for r in args.repos:
-            series = read_series(r)
-            if todays_data:
-                add_data(series, todays_data[r])
+            series = prepare_series(r)
 
             result.append(display_summary_data(r, series, start=start))
         print(json.dumps(result, indent=2))
     else:
         for r in args.repos:
-
-            series = read_series(r)
-            if todays_data:
-                add_data(series, todays_data[r])
-
+            series = prepare_series(r)
             display_func(r, series=series, start=start)
 
 
@@ -297,11 +310,18 @@ def merge(series):
 
         yield result
 
+
 def ts_after(start, ts):
     return [d for d in ts if d["timestamp"] > start]
 
+def ts_on_date(date, ts):
+    return [d for d in ts if d["timestamp"].split("T")[0] == date.isoformat()]
+
 def series_after(start, series):
     return {k: ts_after(start, v) for k, v in series.items()}
+
+def series_on_date(date, series):
+    return {k: ts_on_date(date, v) for k, v in series.items()}
 
 def fetch_clones(repo):
     data = fetch_data(f"repos/{repo}/traffic/clones")
