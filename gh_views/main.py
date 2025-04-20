@@ -171,11 +171,14 @@ def delete(repo):
 def get_fetch(repo):
     return read_timeseries(fetch_path(repo))[-1]["timestamp"]
 
+def get_first_fetch(repo):
+    return read_timeseries(fetch_path(repo))[0]["timestamp"]
+
 def get_start(repo) -> str:
     if not os.path.exists(fetch_path(repo)):
         raise Exception('Fetch data does not exist (added in 2.1.0) rerun --fetch. This means old data is ignored. If you care tweak the fetch file by hand.')
 
-    ts = get_fetch(repo)
+    ts = get_first_fetch(repo)
     fetch_ts = NaiveUtcDate.parse(ts)
 
     window_ts = (fetch_ts.replace(hour=0, minute=0, second=0, microsecond=0) - NaiveUtcDate.timedelta(days=12))
