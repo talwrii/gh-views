@@ -87,10 +87,9 @@ def main():
 
     if args.timeseries:
         display_func = display_timeseries
-    elif args.json:
-        display_func = display_summary_json
     else:
         display_func = display_summary
+
 
     if args.delete:
         if args.all:
@@ -123,11 +122,18 @@ def main():
             for r in repos:
                 todays_data[r] = fetch(r)
         elif args.all:
-            for r in sorted(list(get_repos())):
-                series = prepare_series(r)
-                print(r)
-                display_func(r, series)
-                print()
+            if args.json:
+                result = []
+                for r in sorted(get_repos()):
+                    series = prepare_series(r)
+                    result.append(display_summary_data(r, series))
+                print(json.dumps(result, indent=2))
+            else:
+                for r in sorted(get_repos()):
+                    series = prepare_series(r)
+                    print(r)
+                    display_func(r, series)
+                    print()
         else:
             repos = list(get_repos())
             for repo in sorted(repos):
@@ -148,7 +154,6 @@ def main():
         result = []
         for r in args.repos:
             series = prepare_series(r)
-
             result.append(display_summary_data(r, series, start=start))
         print(json.dumps(result, indent=2))
     else:
@@ -227,7 +232,7 @@ def read_series(repo):
         }
 
 
-def display_summary_data(repo, series, start):
+def display_summary_data(repo, series, start=None):
     repo_start = get_start(repo)
     if start and start < repo_start:
         raise Exception('start {start} must be after window for repo data (started at {start})')
@@ -264,8 +269,8 @@ def display_summary(repo, series, start=None):
     print(f"VIEWS  unique:{data['unique_views']} ({data['unique_views_per_day']:.1f} per day) total:{data['total_views']} ({data['total_views_per_day']:.1f} per day)")
     print(f"CLONES unique:{data['unique_clones']} ({data['unique_clones_per_day']:.1f} per day) total:{data['total_clones']} ({data['total_clones_per_day']:.1f} per day)")
 
-def display_summary_json(repo, series):
-    data = display_summary_data(repo, series)
+def display_summary_json(repo, series, start=None):
+    data = display_summary_data(repo, series, start=start)
     print(json.dumps(data, indent=2))
 
 def display_timeseries(repo, series, start=None):
