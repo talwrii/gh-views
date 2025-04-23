@@ -16,7 +16,7 @@ There are some repositories [intended for use as github actions](https://github.
 
 [repohistory](https://github.com/repohistory/repohistory?tab=readme-ov-file) provides similar functionality through a browser GUI - it has no intructions for running locally but provides an externally hosted service. [ghstats](https://github.com/vladkens/ghstats) is another GUI interface but has instructions on how to run it, collects more information and provides an end-point for querying (I may have used this if I discovered it earlier).
 
-There are [tools for forward this data to splunk](https://github.com/josehelps/github-traffic-collector).
+There are [tools to forward this data to splunk](https://github.com/josehelps/github-traffic-collector).
 
 `gh-view` appears to be the only command-line tool for this task. My experience is that command-line tools are easier to understand, set up and debug.
 
@@ -82,9 +82,9 @@ Note that it there are e.g. no downloads for a day keys are *missing* from the t
 I have not tested this on mac or windows. The code for storing fetched may need different paths: patches for this will be quickly merged.
 
 # Support
-If you found this tool particularly useful you can give me some money (maybe $3?) on [my ko-fi](https://ko-fi.com/c/0a3037db4b)
+If you found this tool particularly useful you can give me some money (maybe $3?) on [my ko-fi](https://ko-fi.com/c/0a3037db4b). This will incentivise me to respond to tickets on this repository and release [similar command-line tools](https://readwithai.substack.com/p/my-productivity-tools).
 
-This will incentivise me to respond to tickets on this repository and release [similar command-line tools](https://readwithai.substack.com/p/my-productivity-tools).
+You could also look at some of the other tools I've made such as [Plugin REPL](https://readwithai.substack.com/p/obsidian-plugin-repl) for [Obsidian](https://readwithai.substack.com/p/making-better-notes-with-obsidian).
 
 # About me
 I am @readwithai I create tools for reading, research and agency sometimes using [Obsidian](https://readwithai.substack.com/p/what-exactly-is-obsidian).
