@@ -6,7 +6,7 @@ Fetch (and update) information about the number of views or clones of a Github r
 This tools requires the [gh Github command-line tool](https://github.com/cli/cli) which is used to handle authentication.
 
 # Motivation
-It can be quite natural to host some material such as documentation, cookbooks and lists on Github. Github provides an API to query the number of views and clones a repository has received on a daily basis, with some limitations. The main limitation is that data is only retained for two weeks. `gh-view`, if run periodically, will collect data about the number of downloads and views of a repository and can provide both aggregates of this data such as the total number of views to date or a complete timelines of statistics.
+It can be quite natural to host some material such as documentation, cookbooks and lists on Github. Github provides an API to query the number of views and clones a repository has received on a daily basis, with some limitations. The main limitation is that data is only retained for two weeks. `gh-views`, if run periodically, will collect data about the number of downloads and views of a repository and can provide both aggregates of this data such as the total number of views to date or a complete timelines of statistics.
 
 
 # Alternatives and prior work
@@ -18,20 +18,18 @@ There are some repositories [intended for use as github actions](https://github.
 
 There are [tools to forward this data to splunk](https://github.com/josehelps/github-traffic-collector).
 
-`gh-view` appears to be the only command-line tool for this task. My experience is that command-line tools are easier to understand, set up and debug.
+`gh-views` appears to be the only command-line tool for this task. My experience is that command-line tools are easier to understand, set up and debug.
 
 # Installation
 Make sure you have the github command line-interface, [gh](https://github.com/cli/cli), installed and that you have logged in with `gh auth login`
 
-You can then install gh-views with [pipx](https://github.com/pypa/pipx) like so:
-
+You can then install `gh-views` with [pipx](https://github.com/pypa/pipx):
 ```
 pipx install gh-views
 ```
 
 # Usage
 To fetch statistics for a repository run:
-
 ```
 gh-views talwrii/plugin-repl --fetch
 ```
@@ -43,40 +41,37 @@ After this you can fetch the cached statistics with:
 gh-views talwrii/plugin-repl
 ```
 
-Todays data is not not included when you run the above command as it could change. To include today's (partial) data include `--fetch`
+Today's data is not not included when you run the above command as it is liabel to change, and so cannot be written to a file. To include today's (partial) data include `--fetch`. The data is then fetched anew each run.
 
 
-To show all the repositories for which stats are collected you can run:
+To show all the repositories for which stats are collected, you can run:
 ```
 gh-views
 ```
 
-To display all statistics you can run:
-
+To display all statistics you, can run:
 ```
 gh-views --all
 ```
 
-To update all stats for tracked repositories (those for which you have collected statistics), you can run:
-
+To update all stats for tracked repositories (those for which you have already collected statistics), you can run:
 ```
 gh-views --fetch
 ```
 
-You can output statistics in data format using the `--json` flag
+You can output statistics in data format using the `--json` flag:
 ```
 gh-views talwrii/plugin-repl --json
 ```
 
+You may wish to run `gh-view` periodically, for example by using a [systemd timer](https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html) or [cron job](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/), to ensure that all data is collected.
 
-You may wish to run this periodically for example using a [systemd timer](https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html) or [cron job](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/), to ensure that all data is collected.
-
-to output a complete timeseries of statistics in [JSONL](https://www.atatus.com/glossary/jsonl/) format for each day you can run:
+To output a complete timeseries of statistics in [JSONL](https://www.atatus.com/glossary/jsonl/) format for each day you can run:
 ```
 gh-views talwrii/plugin-repl --timeseries
 ```
 
-Note that it there are e.g. no downloads for a day keys are *missing* from the timeseries rather than zeros.
+Note that if there are e.g. no downloads for a day keys are *missing* from the timeseries rather than zeros.
 
 # Missing features
 I have not tested this on mac or windows. The code for storing fetched may need different paths: patches for this will be quickly merged.
