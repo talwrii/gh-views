@@ -12,7 +12,7 @@ It can be quite natural to host some material such as documentation, cookbooks a
 # Alternatives and prior work
 This makes use of the [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) specifically [traffic endpoints](https://docs.github.com/en/rest/metrics/traffic?apiVersion=2022-11-28). You can use the API yourself with [gh command-line client](https://github.com/cli/cli) command, `gh api` or, indeed perform HTTP requests yourself directly or with a library after you have obtained a Github token. The `gh` command-line makes it very easy to authenticate with Github.
 
-There are some repositories [intended for use as github actions](https://github.com/sangonzal/repository-traffic-action) which store these actions. I find Github actions unwieldy and difficult to debug.
+There are some repositories [intended for use as github actions](https://github.com/sangonzal/repository-traffic-action) which maintain a similar sort of timeline. I find Github actions unwieldy and difficult to debug.
 
 [repohistory](https://github.com/repohistory/repohistory?tab=readme-ov-file) provides similar functionality through a browser GUI - it has no intructions for running locally but provides an externally hosted service. [ghstats](https://github.com/vladkens/ghstats) is another GUI interface but has instructions on how to run it, collects more information and provides an end-point for querying (I may have used this if I discovered it earlier).
 
